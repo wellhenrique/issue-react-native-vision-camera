@@ -29,8 +29,8 @@ function MyCameraComponent(
     const requestPermissionResponse = await requestPermission();
     if (!requestPermissionResponse) {
       return Alert.alert(
-        'Permissão de Câmera negada!',
-        'Precisamos de acesso a câmera para tirar fotos, ler código de barras e qrcode.',
+        'Camera Permission Denied!',
+        'We need access to the camera to read the barcode.',
       );
     }
   }

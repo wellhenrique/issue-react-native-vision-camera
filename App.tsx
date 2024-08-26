@@ -1,26 +1,32 @@
 import React, { useEffect } from 'react';
 import {
-  Dimensions,
   View,
+  Text,
+  Pressable,
+  StyleSheet,
 } from 'react-native';
-import { Camera, Code, useCodeScanner } from 'react-native-vision-camera';
-import { MyCamera } from './my-camera';
 import BarcodeMask from 'react-native-barcode-mask';
-import { Text, StyleSheet, Pressable } from 'react-native';
 import * as ScreenOrientation from 'expo-screen-orientation';
+import { Camera, Code, useCodeScanner } from 'react-native-vision-camera';
+
+import { MyCamera } from './my-camera';
 
 type Props = {};
 
 const App: React.FC<Props> = () => {
   const [isActive, setIsActive] = React.useState<boolean>(false);
-  const [isLandscape, setIsLandscape] = React.useState(false);
   const [scanValue, setScanValue] = React.useState('')
   const [orientationIsReady, setOrientationIsReady] = React.useState(false);
 
   const codeScanner = useCodeScanner({
-    codeTypes: ['qr', 'code-128'],
+    codeTypes: ['code-128'],
     onCodeScanned: (codes) => handleScanBarcode(codes[0]),
   });
+
+  async function handleActiveBarcodeScan() {
+    setIsActive(!isActive)
+    setScanValue('')
+  }
 
   async function lockOrientationToLandscape() {
     await ScreenOrientation.lockAsync(
@@ -50,14 +56,6 @@ const App: React.FC<Props> = () => {
     };
   }, []);
 
-  useEffect(() => {
-    const subscription = Dimensions.addEventListener('change', ({ window }) => {
-      setIsLandscape(window.width > window.height);
-    });
-
-    return () => subscription?.remove();
-  }, []);
-
   const requestCameraPermission = async () => {
     try {
       await Camera.requestCameraPermission();
@@ -67,7 +65,6 @@ const App: React.FC<Props> = () => {
   };
 
   async function handleScanBarcode(code: Code) {
-    console.log(code.value)
     if (code.value) setScanValue(code.value)
   }
 
@@ -91,13 +88,13 @@ const App: React.FC<Props> = () => {
         <Text style={styles.text}>{scanValue}</Text>
         {isActive && (
           <BarcodeMask
-            width={'88%'}
+            width={'95%'}
             height={120}
             showAnimatedLine={false}
           />
         )}
 
-        <Pressable style={styles.button} onPress={() => setIsActive(!isActive)}>
+        <Pressable style={styles.button} onPress={handleActiveBarcodeScan}>
           <Text style={styles.text}>SCAN</Text>
         </Pressable>
       </View>
